@@ -31,19 +31,18 @@ export default function AllToolContainer() {
   const [sidebarWidth, setSidebarWidth] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
 
-  // ✅ Single map initialization
+  // ✅ Initialize Google Map only once
   const { mapRef, map, loaded, error } = useGoogleMapWithIndia({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY, // ✅ secure key from env
+    apiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY, // secure key
     libraries: ["drawing", "geometry", "places"]
   });
 
-  // Handle tab change
+  // Handle tab change and sync with URL
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setSearchParams({ tab: newValue });
   };
 
-  // Sync tab with URL param
   useEffect(() => {
     const tabFromUrl = parseInt(searchParams.get("tab") || "0", 10);
     if (tabFromUrl !== activeTab) {
@@ -53,7 +52,7 @@ export default function AllToolContainer() {
 
   const handleBack = () => navigate("/network");
 
-  // Sidebar resize handlers
+  // Sidebar resizing
   const startResizing = (e) => {
     setIsResizing(true);
     e.preventDefault();
@@ -77,9 +76,13 @@ export default function AllToolContainer() {
     };
   }, [isResizing]);
 
-  // Search box callback
+  // Handle map search selection
   const handlePlaceSelect = (place) => {
     console.log("Selected place:", place);
+    if (map && place.geometry?.location) {
+      map.panTo(place.geometry.location);
+      map.setZoom(14);
+    }
   };
 
   return (
@@ -107,7 +110,7 @@ export default function AllToolContainer() {
             boxShadow: "4px 0 12px rgba(0,0,0,0.08)",
             backgroundColor: "white",
             position: "relative",
-            zIndex: 10
+            zIndex: 20
           }}
         >
           {/* Header */}
@@ -181,18 +184,10 @@ export default function AllToolContainer() {
               "&::-webkit-scrollbar": { display: "none" }
             }}
           >
-            <Box sx={{ display: activeTab === 0 ? "block" : "none" }}>
-              <DistanceMeasurementTab map={map} />
-            </Box>
-            <Box sx={{ display: activeTab === 1 ? "block" : "none" }}>
-              <PolygonDrawingTab map={map} />
-            </Box>
-            <Box sx={{ display: activeTab === 2 ? "block" : "none" }}>
-              <InfrastructureTab map={map} />
-            </Box>
-            <Box sx={{ display: activeTab === 3 ? "block" : "none" }}>
-              <ElevationTab map={map} />
-            </Box>
+            {activeTab === 0 && <DistanceMeasurementTab map={map} />}
+            {activeTab === 1 && <PolygonDrawingTab map={map} />}
+            {activeTab === 2 && <InfrastructureTab map={map} />}
+            {activeTab === 3 && <ElevationTab map={map} />}
           </Box>
 
           {/* Resizer */}
@@ -223,7 +218,7 @@ export default function AllToolContainer() {
               position: "absolute",
               top: 9,
               left: 190,
-              zIndex: 20,
+              zIndex: 25,
               boxShadow: "0px 4px 12px rgba(0,0,0,0.2)"
             }}
           >
@@ -231,59 +226,63 @@ export default function AllToolContainer() {
           </Fab>
         )}
 
-        <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-          {loaded && map && (
+        {/* Google Map as base layer */}
+        <Box
+          ref={mapRef}
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 1
+          }}
+        />
+
+        {/* Search box overlay */}
+        {loaded && map && (
+          <Box sx={{ position: "absolute", top: 10, left: 10, zIndex: 10 }}>
             <MapSearchBox map={map} onPlaceSelect={handlePlaceSelect} />
-          )}
+          </Box>
+        )}
 
-          {/* Map itself */}
+        {/* Loading state */}
+        {!loaded && (
           <Box
-            ref={mapRef}
             sx={{
-              flex: 1,
-              minWidth: 0,
-              height: "100%"
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "rgba(255,255,255,0.9)",
+              zIndex: 20
             }}
-          />
-
-          {/* Loading state */}
-          {!loaded && (
-            <Box
-              sx={{
-                position: "absolute",
-                inset: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "rgba(255,255,255,0.9)",
-                zIndex: 10
-              }}
-            >
-              <Typography variant="h6" color="text.secondary">
-                🗺️ Loading Google Maps...
-              </Typography>
-            </Box>
-          )}
-
-          {/* Error state */}
-          {error && (
-            <Typography
-              color="error"
-              sx={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                backgroundColor: "white",
-                p: 2,
-                borderRadius: 1,
-                zIndex: 10,
-                boxShadow: 2
-              }}
-            >
-              ❌ {error}
+          >
+            <Typography variant="h6" color="text.secondary">
+              🗺️ Loading Google Maps...
             </Typography>
-          )}
-        </Box>
+          </Box>
+        )}
+
+        {/* Error state */}
+        {error && (
+          <Typography
+            color="error"
+            sx={{
+              position: "absolute",
+              top: 10,
+              left: 10,
+              backgroundColor: "white",
+              p: 2,
+              borderRadius: 1,
+              zIndex: 30,
+              boxShadow: 2
+            }}
+          >
+            ❌ {error}
+          </Typography>
+        )}
       </Box>
     </Box>
   );

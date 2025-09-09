@@ -5,7 +5,7 @@ let googleMapsPromise = null;
 export default function useGoogleMapWithIndia({
   apiKey,
   libraries = ["drawing", "geometry", "places"],
-  mapOptions = {},
+  mapOptions = {}
 }) {
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
@@ -39,7 +39,7 @@ export default function useGoogleMapWithIndia({
               north: 37.1,
               south: 6.7,
               west: 68.1,
-              east: 97.4,
+              east: 97.4
             };
 
             // Add loading event listeners
@@ -49,36 +49,34 @@ export default function useGoogleMapWithIndia({
               mapTypeId: "hybrid",
               restriction: {
                 latLngBounds: indiaBounds,
-                strictBounds: true,
+                strictBounds: true
               },
-              ...mapOptions,
+              ...mapOptions
             });
 
             // Optional: India rectangle boundary (transparent)
             new google.maps.Rectangle({
               bounds: indiaBounds,
               map: mapInstance,
-              strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillColor: "transparent",
-              fillOpacity: 0.05,
+              strokeOpacity: 0, // Invisible stroke
+              fillOpacity: 0 // Invisible fill
             });
 
             // Listen for the map's idle event to confirm it's fully loaded
-            google.maps.event.addListenerOnce(mapInstance, 'idle', () => {
+            google.maps.event.addListenerOnce(mapInstance, "idle", () => {
               setLoaded(true);
-              console.log('Google Map fully loaded');
+              console.log("Google Map fully loaded");
             });
 
             // Listen for map errors
-            google.maps.event.addListener(mapInstance, 'error', (e) => {
-              console.error('Google Maps error:', e);
+            google.maps.event.addListener(mapInstance, "error", (e) => {
+              console.error("Google Maps error:", e);
               setError(`Map rendering error: ${e.error}`);
             });
 
             setMap(mapInstance);
           } catch (err) {
-            console.error('Error initializing map:', err);
+            console.error("Error initializing map:", err);
             setError(`Failed to initialize map: ${err.message}`);
           }
         } else {
@@ -86,8 +84,10 @@ export default function useGoogleMapWithIndia({
         }
       })
       .catch((err) => {
-        console.error('Google Maps API loading error:', err);
-        setError(`Failed to load Google Maps API: ${err.message || 'Unknown error'}`);
+        console.error("Google Maps API loading error:", err);
+        setError(
+          `Failed to load Google Maps API: ${err.message || "Unknown error"}`
+        );
       });
   }, [apiKey, libraries, mapOptions]);
 
