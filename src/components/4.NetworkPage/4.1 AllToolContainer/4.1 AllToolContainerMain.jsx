@@ -166,7 +166,7 @@ import {
 } from "@mui/icons-material";
 import useGoogleMapWithIndia from "../../../hooks/useGoogleMapWithIndia";
 import useRegionAccess from "../../../hooks/useRegionAccess";
-import MapSearchBox from "../../MapSearchBox";
+// import MapSearchBox from "../../MapSearchBox";
 
 export default function AllToolContainer({ userData = {} }) {
   const theme = useTheme();
@@ -908,9 +908,9 @@ export default function AllToolContainer({ userData = {} }) {
 
         {/* Map Container */}
         <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
-          {loaded && map && (
+          {/* {loaded && map && (
             <MapSearchBox map={map} onPlaceSelect={handlePlaceSelect} />
-          )}
+          )} */}
 
           {/* Map Element */}
           <Box

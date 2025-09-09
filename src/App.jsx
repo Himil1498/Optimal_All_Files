@@ -13,13 +13,14 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 import AllToolContainer from "./components/4.NetworkPage/4.1 AllToolContainer/4.1 AllToolContainerMain";
 import GISToolInterface from "./components/4.NetworkPage/4.1 AllToolContainer/GISToolInterface";
-import MapMeasurement from "./components/MapMeasurement";
-import PolygonDraw from "./components/PolygonDraw";
-import AddInfra from "./components/AddInfra";
-import RegionExplorer from "./components/RegionalExplorer";
-import ElevationViewer from "./components/ElevationViewer";
-import AllTool from "./components/AllTool";
+// import MapMeasurement from "./components/MapMeasurement";
+// import PolygonDraw from "./components/PolygonDraw";
+// import AddInfra from "./components/AddInfra";
+// import RegionExplorer from "./components/RegionalExplorer";
+// import ElevationViewer from "./components/ElevationViewer";
+// import AllTool from "./components/AllTool";
 import AllToolCard from "./components/AllTooCard";
+import AllTools from "./components/AllTools";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -91,14 +92,22 @@ export default function App() {
           </Layout>
         }
       />
+      <Route
+        path="/allTools"
+        element={
+          <Layout>
+            <AllTools />
+          </Layout>
+        }
+      />
 
-      <Route path="/mapMeasurement" element={<MapMeasurement />} />
+      {/* <Route path="/mapMeasurement" element={<MapMeasurement />} />
       <Route path="/polygonDrawing" element={<PolygonDraw />} />
       <Route path="/addInfra" element={<AddInfra />} />
       <Route path="/regionalExplorer" element={<RegionExplorer />} />
       <Route path="/elevation" element={<ElevationViewer />} />
 
-      <Route path="/allTools" element={<AllTool />} />
+      <Route path="/allTools" element={<AllTool />} /> */}
 
       {/* Catch-all → redirect */}
       <Route path="*" element={<Navigate to="/" replace />} />

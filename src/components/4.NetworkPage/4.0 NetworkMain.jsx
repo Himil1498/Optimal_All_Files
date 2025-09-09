@@ -60,7 +60,7 @@ export default function Network() {
                 component="div"
                 sx={{ fontWeight: "bold" }}
               >
-                Testing : GIS Tool Interface
+                Testing : GIS Tool Interface (NOT WORKING JUST UI)
               </Typography>
             </Box>
             <Typography variant="body1" color="text.secondary">
@@ -70,7 +70,7 @@ export default function Network() {
           </CardContent>
         </CardActionArea>
 
-        <CardActionArea onClick={handleOpenTools}>
+        {/* <CardActionArea onClick={handleOpenTools}>
           <CardContent>
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
               <BuildIcon sx={{ mr: 1, fontSize: 28, color: "#1976d2" }} />
@@ -87,7 +87,7 @@ export default function Network() {
               infrastructure elements, and check elevation on the map.
             </Typography>
           </CardContent>
-        </CardActionArea>
+        </CardActionArea> */}
       </Card>
     </Box>
   );

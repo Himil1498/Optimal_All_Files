@@ -1,55 +1,3 @@
-// import { Box } from "@mui/material";
-// import { useEffect } from "react";
-// import Sidebar from "./4.2 Sidebar/4.2 SidebarMain";
-// import useGoogleMapWithIndia from "../../../hooks/useGoogleMapWithIndia";
-// import useRegionAccess from "../../../hooks/useRegionAccess";
-
-// export default function AllToolContainer({ userData = {} }) {
-//   const allowedRegions = userData.regions || [];
-
-//   // 1️⃣ Init map
-//   const { mapRef, map, loaded } = useGoogleMapWithIndia({
-//     apiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY, // ✅ works in Vite
-//   });
-
-//   // 2️⃣ Apply region access
-//   const { ready, fitMapToAllowedRegions, allowedStateNames } = useRegionAccess(
-//     map,
-//     userData.username || userData.id
-//   );
-
-//   // 3️⃣ Auto-zoom once both are ready
-//   useEffect(() => {
-//     if (map && ready) {
-//       fitMapToAllowedRegions();
-//     }
-//   }, [map, ready, fitMapToAllowedRegions]);
-
-//   return (
-//     <Box
-//       sx={{
-//         display: "flex",
-//         height: "100vh",
-//         width: "100%",
-//         overflow: "hidden",
-//       }}
-//     >
-//       {/* Sidebar */}
-//       <Sidebar regions={allowedRegions} />
-
-//       {/* Map container */}
-//       <Box
-//         ref={mapRef}
-//         sx={{
-//           flex: 1,
-//           minWidth: 0,
-//           height: "100%",
-//         }}
-//       />
-//     </Box>
-//   );
-// }
-
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -63,20 +11,17 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
 import MapSearchBox from "./MapSearchBox";
 
-// Tab components
-import DistanceMeasurementTab from "./Tabs/DistanceMeasurementTab";
-import PolygonDrawingTab from "./Tabs/PolygonDrawingTab";
-import InfrastructureTab from "./Tabs/InfrastructureTab";
-import ElevationTab from "./Tabs/ElevationTab";
+// Import tab components
+import DistanceMeasurementTab from "../components/Tabs/DistanceMeasurementTab";
+import PolygonDrawingTab from "../components/Tabs/PolygonDrawingTab";
+import InfrastructureTab from "../components/Tabs/InfrastructureTab";
+import ElevationTab from "../components/Tabs/ElevationTab";
 
-// Hooks
 import useGoogleMapWithIndia from "../hooks/useGoogleMapWithIndia";
-// import useRegionAccess from "../hooks/useRegionAccess"; // ✅ Uncomment when you have this hook
 
-export default function AllTool({ userData = {} }) {
+export default function AllToolContainer() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = parseInt(searchParams.get("tab") || "0", 10);
@@ -85,36 +30,20 @@ export default function AllTool({ userData = {} }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
-  const [error, setError] = useState(null);
 
-  const allowedRegions = userData.regions || [];
-
-  // ✅ 1. Initialize Map
-  const { mapRef, map, loaded } = useGoogleMapWithIndia({
-    apiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY
+  // ✅ Single map initialization
+  const { mapRef, map, loaded, error } = useGoogleMapWithIndia({
+    apiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY, // ✅ secure key from env
+    libraries: ["drawing", "geometry", "places"]
   });
 
-  // ✅ 2. Region Access Control (Optional: Uncomment when ready)
-  /*
-  const { ready, fitMapToAllowedRegions } = useRegionAccess(
-    map,
-    userData.username || userData.id
-  );
-
-  // Auto-zoom once both are ready
-  useEffect(() => {
-    if (map && ready) {
-      fitMapToAllowedRegions();
-    }
-  }, [map, ready, fitMapToAllowedRegions]);
-  */
-
-  // ✅ Handle tab change
+  // Handle tab change
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
     setSearchParams({ tab: newValue });
   };
 
+  // Sync tab with URL param
   useEffect(() => {
     const tabFromUrl = parseInt(searchParams.get("tab") || "0", 10);
     if (tabFromUrl !== activeTab) {
@@ -124,7 +53,7 @@ export default function AllTool({ userData = {} }) {
 
   const handleBack = () => navigate("/network");
 
-  // ✅ Sidebar Resizing
+  // Sidebar resize handlers
   const startResizing = (e) => {
     setIsResizing(true);
     e.preventDefault();
@@ -148,6 +77,7 @@ export default function AllTool({ userData = {} }) {
     };
   }, [isResizing]);
 
+  // Search box callback
   const handlePlaceSelect = (place) => {
     console.log("Selected place:", place);
   };
@@ -162,12 +92,12 @@ export default function AllTool({ userData = {} }) {
         bgcolor: "#fafafa"
       }}
     >
-      {/* ---------- Sidebar ---------- */}
+      {/* Sidebar */}
       <Collapse in={sidebarOpen} orientation="horizontal" timeout={400}>
         <Box
           sx={{
             width: { xs: "100%", md: sidebarWidth },
-            minWidth: { md: 240 },
+            minWidth: { md: 400 },
             maxWidth: { md: 600 },
             height: { xs: "auto", md: "100%" },
             display: "flex",
@@ -180,7 +110,7 @@ export default function AllTool({ userData = {} }) {
             zIndex: 10
           }}
         >
-          {/* ---------- Sidebar Header ---------- */}
+          {/* Header */}
           <Box
             sx={{
               display: "flex",
@@ -209,7 +139,7 @@ export default function AllTool({ userData = {} }) {
             </IconButton>
           </Box>
 
-          {/* ---------- Tabs ---------- */}
+          {/* Tabs */}
           <Tabs
             value={activeTab}
             onChange={handleTabChange}
@@ -240,7 +170,7 @@ export default function AllTool({ userData = {} }) {
             <Tab label="⛰️ Elevation" />
           </Tabs>
 
-          {/* ---------- Tab Content ---------- */}
+          {/* Tab Content */}
           <Box
             sx={{
               flex: 1,
@@ -251,13 +181,21 @@ export default function AllTool({ userData = {} }) {
               "&::-webkit-scrollbar": { display: "none" }
             }}
           >
-            {activeTab === 0 && <DistanceMeasurementTab map={map} />}
-            {activeTab === 1 && <PolygonDrawingTab map={map} />}
-            {activeTab === 2 && <InfrastructureTab map={map} />}
-            {activeTab === 3 && <ElevationTab map={map} />}
+            <Box sx={{ display: activeTab === 0 ? "block" : "none" }}>
+              <DistanceMeasurementTab map={map} />
+            </Box>
+            <Box sx={{ display: activeTab === 1 ? "block" : "none" }}>
+              <PolygonDrawingTab map={map} />
+            </Box>
+            <Box sx={{ display: activeTab === 2 ? "block" : "none" }}>
+              <InfrastructureTab map={map} />
+            </Box>
+            <Box sx={{ display: activeTab === 3 ? "block" : "none" }}>
+              <ElevationTab map={map} />
+            </Box>
           </Box>
 
-          {/* ---------- Resizer ---------- */}
+          {/* Resizer */}
           <Box
             onMouseDown={startResizing}
             sx={{
@@ -274,7 +212,7 @@ export default function AllTool({ userData = {} }) {
         </Box>
       </Collapse>
 
-      {/* ---------- Map Container ---------- */}
+      {/* Map Container */}
       <Box sx={{ flex: 1, position: "relative" }}>
         {!sidebarOpen && (
           <Fab
@@ -298,7 +236,7 @@ export default function AllTool({ userData = {} }) {
             <MapSearchBox map={map} onPlaceSelect={handlePlaceSelect} />
           )}
 
-          {/* Map Element */}
+          {/* Map itself */}
           <Box
             ref={mapRef}
             sx={{
@@ -307,45 +245,45 @@ export default function AllTool({ userData = {} }) {
               height: "100%"
             }}
           />
-        </Box>
 
-        {/* Loading Overlay */}
-        {!loaded && (
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "rgba(255,255,255,0.9)",
-              zIndex: 10
-            }}
-          >
-            <Typography variant="h6" color="text.secondary">
-              🗺️ Loading Google Maps...
+          {/* Loading state */}
+          {!loaded && (
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "rgba(255,255,255,0.9)",
+                zIndex: 10
+              }}
+            >
+              <Typography variant="h6" color="text.secondary">
+                🗺️ Loading Google Maps...
+              </Typography>
+            </Box>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <Typography
+              color="error"
+              sx={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                backgroundColor: "white",
+                p: 2,
+                borderRadius: 1,
+                zIndex: 10,
+                boxShadow: 2
+              }}
+            >
+              ❌ {error}
             </Typography>
-          </Box>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <Typography
-            color="error"
-            sx={{
-              position: "absolute",
-              top: 10,
-              left: 10,
-              backgroundColor: "white",
-              p: 2,
-              borderRadius: 1,
-              zIndex: 10,
-              boxShadow: 2
-            }}
-          >
-            ❌ {error}
-          </Typography>
-        )}
+          )}
+        </Box>
       </Box>
     </Box>
   );
